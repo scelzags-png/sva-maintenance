@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f5f3ef">
+  <title>SVA Maintenance</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="app.css?v=3.0.0">
+  <script src="config.js?v=3.0.0"></script>
+</head>
+<body>
+  <div id="boot" class="boot">Loading...</div>
+
+  <section id="auth" class="auth" hidden>
+    <div class="auth-card">
+      <div class="eyebrow">Shenandoah Valley Academy</div>
+      <h1>Maintenance requests</h1>
+
+      <div id="authStep1">
+        <p class="muted">Sign in with your school email. We will email you a sign-in link. There is no password or code to type.</p>
+        <label class="field"><span>School email</span>
+          <input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="first.last@svasda.org">
+        </label>
+        <button class="btn block" id="sendLink">Email me a sign-in link</button>
+      </div>
+
+      <div id="authStep2" hidden>
+        <div class="notice ok" id="authMsg"></div>
+        <p class="muted small">Open your school email <b>on this phone or computer</b> and tap <b>Sign in to SVA Maintenance</b>. The link works once and expires in 10 minutes.</p>
+        <button class="btn ghost block" id="resendLink">Send it again</button>
+        <button class="btn ghost block" id="backEmail">Use a different email</button>
+      </div>
+
+      <div id="authConfirm" hidden>
+        <p class="muted">You are signing in to SVA Maintenance on this device.</p>
+        <button class="btn block" id="confirmSignIn">Confirm sign-in</button>
+        <p class="caption" style="margin-top:12px">Only tap this if you just asked for a sign-in link yourself.</p>
+      </div>
+
+      <div id="authRevoke" hidden>
+        <p class="muted">This signs your account out of SVA Maintenance on every phone and computer. Use it if you got a sign-in alert that was not you.</p>
+        <button class="btn danger block" id="confirmRevoke">Sign out everywhere</button>
+        <button class="btn ghost block" id="cancelRevoke">Cancel</button>
+      </div>
+
+      <div id="authErr" class="notice danger" hidden></div>
+      <p class="caption safe-note">The real portal is only at this address. Nobody from the school will ask you for a sign-in link by text, phone call or on another website.</p>
+    </div>
+  </section>
+
+  <section id="updating" class="auth" hidden>
+    <div class="auth-card">
+      <div class="eyebrow">SVA Maintenance</div>
+      <h1>The portal is being updated</h1>
+      <p class="muted">Please try again in a few minutes. Anything you were typing is saved on this device.</p>
+      <button class="btn block" id="reloadBtn">Try again</button>
+    </div>
+  </section>
+
+  <div id="shell" hidden>
+    <header class="bar">
+      <div class="brand">SVA Maintenance</div>
+      <div class="bar-right">
+        <button class="icon-btn" data-act="refresh" aria-label="Refresh" id="refreshBtn"></button>
+        <div class="menu-wrap">
+          <button class="avatar" id="avatar" data-act="userMenu" aria-label="Account"></button>
+          <div class="menu" id="userMenu" hidden>
+            <div class="menu-who" id="menuWho"></div>
+            <button data-act="myBuildings">My buildings</button>
+            <button data-act="install">Add to home screen</button>
+            <button data-act="signout">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="main"></main>
+    <button class="fab" id="fab" data-act="newReq" aria-label="New request"></button>
+  </div>
+
+  <div id="modal" class="overlay" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js?v=3.0.0"></script>
+</body>
+</html>

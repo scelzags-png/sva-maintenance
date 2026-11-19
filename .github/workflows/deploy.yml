@@ -1,0 +1,45 @@
+name: Check and publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apps Script and page must match
+        run: ./scripts/check-version.sh
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the site folder
+        run: |
+          mkdir _site
+          cp index.html app.js app.css config.js manifest.json icon.svg icon-192.png icon-512.png apple-touch-icon.png _site/
+          # New file names on every publish so phones never keep an old copy
+          sed -i "s/?v=[0-9.]*\"/?v=${GITHUB_SHA::8}\"/g" _site/index.html
+          grep -c "${GITHUB_SHA::8}" _site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
