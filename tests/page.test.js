@@ -119,7 +119,7 @@ async function newPage(browser, base, st, opts) {
   const bs = st.calls.filter(c => c.fn === 'bootstrap').pop();
   ok('bootstrap carries token', bs.token === TOKEN);
 
-  // 4. New request: similar warning, safety + entry, vehicle label
+  // 4. New request: similar warning, safety, vehicle label
   await page.click('#fab');
   await page.waitForSelector('#nrDesc');
   await page.click('#nrCats .pick[data-v="Plumbing"]');
@@ -134,17 +134,16 @@ async function newPage(browser, base, st, opts) {
   await page.selectOption('#nrSpot', 'Mini Bus 2');
   await page.fill('#nrDesc', 'Dash light is sparking');
   await page.check('#nrSafety');
-  await page.check('#nrEntry');
   const draft = JSON.parse(await page.evaluate(() => localStorage.getItem('svam_draft')));
-  ok('draft keeps safety/entry', draft.safety === true && draft.entryOk === true, draft);
+  ok('draft keeps safety', draft.safety === true, draft);
   await page.click('#nrSubmit');
   await page.waitForSelector('#modal[hidden]', { state: 'attached' });
   const cr = st.calls.find(c => c.fn === 'createRequest').args[0];
-  ok('create sends booleans', cr.safety === true && cr.entryOk === true && cr.building === 'Vehicles' && cr.spot === 'Mini Bus 2', cr);
+  ok('create sends booleans', cr.safety === true && cr.entryOk === undefined && cr.building === 'Vehicles' && cr.spot === 'Mini Bus 2', cr);
   ok('safety badge on card', /Safety/.test(await page.textContent('#list')));
   ok('draft cleared', (await page.evaluate(() => localStorage.getItem('svam_draft'))) === null);
   await page.click('.card[data-id="MR-0002"]');
-  ok('detail shows entry + safety', /OK to enter/.test(await page.textContent('#pane')) && /safety problem/.test(await page.textContent('#pane')));
+  ok('detail shows safety, no entry row', !/OK to enter/.test(await page.textContent('#pane')) && /safety problem/.test(await page.textContent('#pane')));
 
   // 5. Server says the page is too old -> updating screen, draft saved
   await page.click('[data-act="closePane"]');

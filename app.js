@@ -388,7 +388,7 @@ function cardHtml(r) {
     '<div class="desc">' + esc(r.desc) + '</div>' +
     '<div class="meta">' + (isStaff() ? '<span>' + esc(r.name) + '</span>' : '') + '<span class="mono">' + esc(fmt(r.created)) + '</span>' +
     (isStaff() && r.assigned ? '<span>Assigned: ' + esc(r.assigned) + '</span>' : '') +
-    (isStaff() && r.entryOk && OPEN.indexOf(r.status) >= 0 ? '<span>OK to enter</span>' : '') + '</div></button>';
+    '</div></button>';
 }
 
 function renderList() {
@@ -421,7 +421,6 @@ function renderPane() {
     '<dl class="kv"><dt>Building</dt><dd>' + esc(r.building) + '</dd>' +
     (r.spot ? '<dt>Spot</dt><dd>' + esc(r.spot) + '</dd>' : '') +
     (staff ? '<dt>From</dt><dd>' + esc(r.name) + '<br><span class="muted small">' + esc(r.email) + '</span></dd>' : '') +
-    '<dt>Entry</dt><dd>' + (r.entryOk ? 'OK to enter if nobody is there' : 'Check with the requester before entering') + '</dd>' +
     '<dt>Created</dt><dd class="mono">' + esc(fmtFull(r.created)) + '</dd>' +
     '<dt>Updated</dt><dd class="mono">' + esc(fmtFull(r.updated)) + '</dd>' +
     (r.assigned ? '<dt>Assigned</dt><dd>' + esc(r.assigned) + '</dd>' : '') + '</dl>' +
@@ -601,7 +600,7 @@ function saveDraft() {
   LS.set(DRAFT_KEY, JSON.stringify({
     email: S.me.email, building: S.nr.building, category: S.nr.category,
     spot: $('nrSpot') ? $('nrSpot').value : '', description: desc,
-    safety: !!($('nrSafety') && $('nrSafety').checked), entryOk: !!($('nrEntry') && $('nrEntry').checked), ts: Date.now()
+    safety: !!($('nrSafety') && $('nrSafety').checked), ts: Date.now()
   }));
 }
 
@@ -612,7 +611,6 @@ function restoreDraft(d) {
   if (sp && d.spot) sp.value = d.spot;
   if (d.description) $('nrDesc').value = d.description;
   if (d.safety) $('nrSafety').checked = true;
-  if (d.entryOk) $('nrEntry').checked = true;
   if (d.category) {
     Array.prototype.forEach.call(document.querySelectorAll('#nrCats .pick'), function (b) {
       if (b.getAttribute('data-v') === d.category) pickCat(b);
@@ -638,8 +636,6 @@ function openNewRequest() {
     '<label class="field"><span>What is wrong?</span><textarea id="nrDesc" maxlength="1000" placeholder="Example: The dishwasher is leaking onto the floor."></textarea></label>' +
     '<label class="tick danger-tick"><input type="checkbox" id="nrSafety"><span><b>Urgent or a safety problem</b>' +
       '<span class="caption">Water leak, no heat, a broken lock, exposed wires, something that could hurt someone.</span></span></label>' +
-    '<label class="tick"><input type="checkbox" id="nrEntry"><span><b>OK to enter if I am not there</b>' +
-      '<span class="caption">Maintenance can go in and fix it without waiting for you.</span></span></label>' +
     '<div class="field"><span>Photo (optional)</span><div class="photo-pick"><button type="button" class="btn ghost sm" data-act="pickPhoto">Add a photo</button>' +
       '<img id="nrThumb" alt="" hidden><button type="button" class="btn ghost sm" id="nrRm" data-act="removePhoto" hidden>Remove</button></div>' +
       '<input id="nrFile" type="file" accept="image/*" hidden></div>' +
@@ -711,7 +707,7 @@ function submitReq() {
   var data = {
     building: S.nr.building, category: S.nr.category,
     description: $('nrDesc').value.trim(), spot: ($('nrSpot') || { value: '' }).value, photo: S.nr.photo,
-    safety: $('nrSafety').checked === true, entryOk: $('nrEntry').checked === true
+    safety: $('nrSafety').checked === true
   };
   if (!data.category) { err.textContent = 'Pick the kind of problem.'; err.hidden = false; return; }
   if (data.description.length < 3) { err.textContent = 'Describe the problem in a few words.'; err.hidden = false; return; }
@@ -762,10 +758,10 @@ function savePerson() {
 /* copy rows */
 function copyRows() {
   var list = filtered();
-  var head = ['ID', 'Created', 'Building', 'Spot', 'Category', 'Priority', 'Safety', 'OK to enter', 'Status', 'Assigned', 'From', 'Description'];
+  var head = ['ID', 'Created', 'Building', 'Spot', 'Category', 'Priority', 'Safety', 'Status', 'Assigned', 'From', 'Description'];
   var clean = function (s) { return String(s == null ? '' : s).replace(/[\t\r\n]+/g, ' '); };
   var rows = [head.join('\t')].concat(list.map(function (r) {
-    return [r.id, fmtFull(r.created), r.building, r.spot, r.category, r.priority, r.safety ? 'Yes' : '', r.entryOk ? 'Yes' : '', r.status, r.assigned, r.name, r.desc].map(clean).join('\t');
+    return [r.id, fmtFull(r.created), r.building, r.spot, r.category, r.priority, r.safety ? 'Yes' : '', r.status, r.assigned, r.name, r.desc].map(clean).join('\t');
   }));
   openModal(modalTop('Copy rows') +
     '<p class="muted">' + list.length + ' request(s) with the current filters. Copy, then paste into Excel or Google Sheets.</p>' +
@@ -878,7 +874,7 @@ document.addEventListener('change', function (e) {
     S.f[t.getAttribute('data-f')] = t.value; renderTiles(); renderList();
   } else if (t.id === 'nrBuilding') { updateSpot(); saveDraft(); }
   else if (t.id === 'nrSpot') { saveDraft(); checkSimilar(); }
-  else if (t.id === 'nrSafety' || t.id === 'nrEntry') { saveDraft(); }
+  else if (t.id === 'nrSafety') { saveDraft(); }
   else if (t.id === 'nrFile') { handlePhotoFile(t.files && t.files[0]); }
   else if (t.id === 'mbMain') {
     var keep = getChecks('mbAlso');
